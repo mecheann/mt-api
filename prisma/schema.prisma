@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//user-> movie -> watchlist-> reviews->ratings
+model User {
+  id        String      @id @default(uuid())
+  email     String   @unique
+  name      String?
+  movies    Movie[]
+  watchlists Watchlist[]
+  reviews   Review[]
+  ratings   Rating[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Movie {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  releaseDate DateTime?
+  user        User?      @relation(fields: [userId], references: [id])
+  userId      String?
+  watchlists  Watchlist[]
+  reviews     Review[]
+  ratings     Rating[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Watchlist {
+  id        String      @id @default(uuid())
+  name      String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  movies    Movie[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id        String      @id @default(uuid())
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  movie     Movie    @relation(fields: [movieId], references: [id])
+  movieId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Rating {
+  id        String      @id @default(uuid())
+  score     Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  movie     Movie    @relation(fields: [movieId], references: [id])
+  movieId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
